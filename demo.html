@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>预演台 AI 导演：说一句话，场景和人一起出现</title>
+<meta name="description" content="网页版演示：对 AI 导演说一个场景，人物、道具和机位会被摆进同一个三维空间，再记成镜头、连成时间轴。">
+<meta name="theme-color" content="#0a0c0f">
+<meta property="og:title" content="预演台 AI 导演">
+<meta property="og:description" content="说一句话，人物、道具和机位一起出现在三维场景里。">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/img/share-ai.jpg">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="bar">
+    <a class="brand" href="./" aria-label="预演台 AI 导演">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square">
+          <path d="M3 8V4h4M17 4h4v4M21 16v4h-4M7 20H3v-4"/>
+          <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+      <span class="brand__name">预演台</span>
+      <span class="brand__tag">AI 导演</span>
+    </a>
+
+    <p class="bar__meta"><i aria-hidden="true"></i>网页演示 · 本地规则 · 不联网</p>
+
+    <div class="bar__actions">
+      <button class="ghost" type="button" data-panel="manual">手动调整</button>
+      <button class="ghost" type="button" data-panel="about">关于</button>
+      <a class="btn" href="assets/download/previz-v0.21.zip" download>下载桌面版</a>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <section class="chat" id="chat" aria-label="和 AI 导演对话">
+      <div class="chat__scroll" id="messages"></div>
+
+      <form class="composer" id="composer" autocomplete="off">
+        <div class="chips" id="chips"></div>
+        <div class="composer__row">
+          <input id="prompt" type="text" placeholder="说一个场景：客厅、两个人、三个机位…" aria-label="对 AI 导演说一句话">
+          <button class="send" type="submit" aria-label="发送">发送</button>
+        </div>
+        <p class="composer__hint">网页版用本地规则解析，不连模型；桌面版里接的是真的聊天模型。</p>
+      </form>
+    </section>
+
+    <section class="stage" id="stage" aria-label="三维场景">
+      <canvas id="scene"></canvas>
+
+      <div class="stage__scrim" id="scrim"></div>
+      <div class="stage__hud">
+        <span class="chip chip--live" data-view>自由视角</span>
+        <span class="chip" data-objects>0 个对象</span>
+      </div>
+
+      <div class="intro" id="intro">
+        <p class="intro__kicker">AI 导演 · 网页演示</p>
+        <h1>说一句话，<br>场景和人一起出现。</h1>
+        <p class="intro__lead">不用建模，也不用先学控件。说清要什么，人物、道具和机位会被摆进同一个三维场景，再切成镜头、连成时间轴。</p>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </section>
+
+  </main>
+
+  <footer class="strip" id="strip" hidden>
+    <div class="strip__head">
+      <b>镜头轨</b>
+      <span class="strip__time" data-total>00:00:00:00</span>
+      <div class="strip__tools">
+        <button class="ghost ghost--sm" type="button" data-record>＋ 记录当前机位</button>
+        <button class="ghost ghost--sm" type="button" data-export>导出分镜表</button>
+        <button class="btn btn--sm" type="button" data-play>▶ 播放</button>
+      </div>
+    </div>
+    <div class="strip__shots" id="shots"></div>
+  </footer>
+
+</div>
+
+<!-- 抽屉：手动调整 / 关于 -->
+<aside class="drawer" id="drawer" hidden aria-label="面板">
+  <div class="drawer__head">
+    <b id="drawerTitle">手动调整</b>
+    <button class="drawer__close" type="button" aria-label="关闭">✕</button>
+  </div>
+
+  <div class="drawer__body" data-drawer="manual" hidden>
+    <div class="field">
+      <span class="field__label">视角</span>
+      <div class="seg" id="viewSeg" role="group" aria-label="视角">
+        <button type="button" data-mode="director" class="is-on">自由</button>
+        <button type="button" data-mode="camera">机位</button>
+        <button type="button" data-mode="top">俯视</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="field__label">场景大纲</span>
+      <ul class="outline" id="outline"></ul>
+    </div>
+
+    <div id="propsEmpty" class="empty">在场景里点一个对象，或从上面的列表里选。</div>
+
+    <div id="props" hidden>
+      <div class="field">
+        <label class="field__label" for="objName">名称</label>
+        <input class="input" id="objName" type="text">
+      </div>
+      <div class="field field--row">
+        <div><label class="field__label" for="objX">X（米）</label><input class="input" id="objX" type="number" step="0.05"></div>
+        <div><label class="field__label" for="objZ">Z（米）</label><input class="input" id="objZ" type="number" step="0.05"></div>
+      </div>
+      <div class="field">
+        <label class="field__label" for="objRot">朝向 <b data-rotval>0°</b></label>
+        <input class="range" id="objRot" type="range" min="-180" max="180" step="1">
+      </div>
+      <div class="field" data-only-camera hidden>
+        <label class="field__label" for="objFov">视野 <b data-fovval>40°</b></label>
+        <input class="range" id="objFov" type="range" min="18" max="110" step="1">
+      </div>
+      <div class="field" data-only-person hidden>
+        <span class="field__label">姿势</span>
+        <div class="posegrid" id="poseGrid"></div>
+      </div>
+      <div class="field">
+        <button class="ghost ghost--sm" type="button" data-delete>删除选中</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer__body" data-drawer="about" hidden>
+    <p class="about__lead">预演台是一个 Windows 桌面上的三维分镜工具。先在白模里摆人和机位，再把每个机位记成一张分镜卡，连起来就是一条能播的时间轴，最后导出 1080p 的 MP4。</p>
+    <h3>网页版做了什么</h3>
+    <ul class="about__list">
+      <li>AI 导演用本地规则解析你的话，实时往三维场景里放人、道具和机位。</li>
+      <li>点场景里的对象可以拖动、改朝向、换姿势、调机位视野。</li>
+      <li>记录镜头后可以按时间轴播放，导出分镜表。</li>
+    </ul>
+    <h3>桌面版有什么不同</h3>
+    <ul class="about__list">
+      <li>接入真实聊天模型（DeepSeek 或任意兼容接口），能读参考图搭场景。</li>
+      <li>GLB 导入、运镜关键帧、走位路线、俯视调度、1080p MP4 导出。</li>
+      <li>工程自动保存到本机，AI 布景与手动编辑走同一条管线。</li>
+    </ul>
+    <h3>运行要求</h3>
+    <p class="about__note">Windows 10 / 11 64 位，显卡需支持 WebGL2。便携版解压整个文件夹，双击 PrevizStudio.exe；首次打开若提示「Windows 已保护你的电脑」，点「更多信息 → 仍要运行」。工程与模型存在 %APPDATA%\预演台。</p>
+    <p class="about__note">这个网页里的一切都是实时 canvas 绘制，没有用软件截图。</p>
+    <a class="btn" href="assets/download/previz-v0.21.zip" download>下载便携版 v0.21（138 MB）</a>
+  </div>
+</aside>
+
+<script src="assets/vendor/gsap.min.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
+

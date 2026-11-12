@@ -1,0 +1,350 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>预演台：三维分镜预演工具</title>
+<meta name="description" content="摆位、架机位、记镜头、走运镜，AI 布景从一句话开始，一条时间轴导出 1080p。预演台 v0.21，Windows 桌面版。">
+<meta name="theme-color" content="#000000">
+<meta property="og:title" content="预演台：分镜，先在三维里拍一遍">
+<meta property="og:description" content="三维分镜预演工具：摆位、机位、镜头轨、运镜、AI 布景，导出 1080p。">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/img/share-ai.jpg">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/landing.css">
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__brand" href="#top" aria-label="预演台">
+      <span class="nav__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8V4h4M17 4h4v4M21 16v4h-4M7 20H3v-4"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/></svg>
+      </span>
+      预演台
+    </a>
+    <ul class="nav__links">
+      <li><a href="#ai">AI 导演</a></li>
+      <li><a href="#scene">场景</a></li>
+      <li><a href="#camera">机位</a></li>
+      <li><a href="#shots">镜头</a></li>
+      <li><a href="#moves">运镜</a></li>
+      <li><a href="#chars">角色</a></li>
+      <li><a href="#export">导出</a></li>
+      <li><a href="#specs">规格</a></li>
+    </ul>
+    <a class="nav__cta" href="#download">下载</a>
+    <button class="nav__menu" type="button" aria-label="菜单" aria-expanded="false">菜单</button>
+  </div>
+</nav>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero__copy">
+      <p class="hero__eyebrow">预演台 PREVIZ STUDIO · v0.21</p>
+      <h1 class="hero__title">分镜，先在<br>三维里拍一遍。</h1>
+      <p class="hero__sub">一台 Windows 上的三维预演工具。摆位、架机位、记镜头、走运镜，AI 布景从一句话开始——最后导出 1080p 的片子。</p>
+      <div class="hero__actions">
+        <a class="cta" href="#download">下载便携版</a>
+        <a class="link" href="#ai">看它怎么工作<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 2v8M2.5 6.5L6 10l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></a>
+      </div>
+    </div>
+
+    <div class="hero__stage">
+      <div class="app">
+        <div class="app__bar">
+          <span class="app__dot" aria-hidden="true"></span>
+          <b>客厅会客</b>
+          <span class="app__tag">镜头 3 / 5</span>
+          <span class="app__seg"><i class="is-on">导演视角</i><i>机位视角</i><i>俯视图</i></span>
+          <span class="app__rec">● 记录镜头</span>
+        </div>
+        <div class="app__body">
+          <canvas data-stage="hero" aria-label="预演台里的白模客厅：两个人、三台机位、底部镜头轨"></canvas>
+        </div>
+        <div class="app__strip">
+          <div class="mini is-on"><canvas data-thumb="0"></canvas><b>01</b><span>全景</span></div>
+          <div class="mini"><canvas data-thumb="1"></canvas><b>02</b><span>双人</span></div>
+          <div class="mini"><canvas data-thumb="2"></canvas><b>03</b><span>近景</span></div>
+          <div class="mini"><canvas data-thumb="3"></canvas><b>04</b><span>过肩</span></div>
+          <div class="mini"><canvas data-thumb="4"></canvas><b>05</b><span>细节</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI -->
+  <section class="sec sec--dark" id="ai">
+    <div class="wrap">
+      <p class="kicker">AI 导演</p>
+      <h2 class="title">说一句话，<br>场景和人一起出现。</h2>
+      <p class="sub">人物、家具、机位一次说完。模型先出零件规格，程序再拼几何体，所以对话搭出来的和手动建的一模一样。</p>
+
+      <div class="aidemo">
+        <div class="aidemo__chat">
+          <div class="aidemo__log" id="aiLog" aria-live="polite"></div>
+          <div class="aidemo__chips" id="aiChips"></div>
+        </div>
+        <div class="aidemo__stage">
+          <canvas data-stage="ai" aria-label="AI 导演搭建出的客厅"></canvas>
+          <span class="aidemo__badge" id="aiBadge">空房间</span>
+        </div>
+      </div>
+
+      <p class="sec__note">这个演示用本地规则解析，不连模型。<a class="link" href="demo.html">进入完整演示<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8M6.5 2.5L10 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></a></p>
+    </div>
+  </section>
+
+  <!-- SCENE -->
+  <section class="sec sec--light" id="scene">
+    <div class="wrap">
+      <p class="kicker">场景</p>
+      <h2 class="title">白模、米制、<br>贴地。</h2>
+      <p class="sub">人在场景里先是一块体量：身高 1.75 米，桌高 0.75 米，门宽 0.9 米。物体按模型给的米数保留，底面自动落地，远景里的比例不会突然失真。</p>
+
+      <div class="stagewrap">
+        <canvas data-stage="scene" aria-label="白模客厅的三维视图，标注层高、桌高与人物身高"></canvas>
+        <span class="hud hud--a">层高 2.70 m</span>
+        <span class="hud hud--b">桌高 0.75 m</span>
+        <span class="hud hud--c">人物 1.75 m</span>
+      </div>
+
+      <ul class="stats">
+        <li><b>0.05 m</b><span>网格吸附，部件贴地</span></li>
+        <li><b>10 万</b><span>单个 GLB 的建议三角面</span></li>
+        <li><b>拆分导入</b><span>每栋楼、每辆车都能单独拖动</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CAMERA -->
+  <section class="sec sec--dark" id="camera">
+    <div class="wrap">
+      <p class="kicker">机位</p>
+      <h2 class="title">一个场景，<br>几台机器。</h2>
+      <p class="sub">「＋ 机位」加一台，拖到位，调视野 18–110°。注视目标可以锁在角色身上，也可以手填坐标——机位视角看到的就是最终构图。</p>
+
+      <div class="planwrap">
+        <svg id="plan" viewBox="0 0 760 520" role="img" aria-label="俯视调度图：客厅平面、机位视野扇形、人物朝向与走位路线"></svg>
+      </div>
+
+      <div class="legend" id="planLegend">
+        <button type="button" data-cam="0"><i></i><b>01</b><span>全景</span><em>44°</em></button>
+        <button type="button" data-cam="1"><i></i><b>02</b><span>双人</span><em>38°</em></button>
+        <button type="button" data-cam="2" class="is-on"><i></i><b>03</b><span>近景</span><em>34°</em></button>
+        <button type="button" data-cam="3"><i></i><b>04</b><span>过肩</span><em>38°</em></button>
+        <button type="button" data-cam="4"><i></i><b>05</b><span>细节</span><em>36°</em></button>
+      </div>
+
+      <ul class="stats">
+        <li><b>18–110°</b><span>每台机位的视野</span></li>
+        <li><b>俯视图</b><span>扇形视野、占地、点击选中</span></li>
+        <li><b>三台起手</b><span>「只加 3 个机位」直接对 AI 说</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- SHOTS (scroll) -->
+  <section class="shots" id="shots">
+    <div class="shots__sticky">
+      <div class="shots__copy">
+        <p class="kicker">镜头</p>
+        <h2 class="title">每个机位记一张，<br>连起来就是一条片子。</h2>
+        <p class="sub">点「记录镜头」，当前机位变成一张分镜卡。按空格，卡按顺序硬切播放；往下滚，你会看到同一场戏的五种剪法。</p>
+      </div>
+      <div class="shots__stage">
+        <canvas data-stage="shots" aria-label="按镜头轨在五个机位之间切换"></canvas>
+        <span class="shots__cut" id="shotsCut">CUT 01</span>
+      </div>
+      <div class="shots__strip" id="shotsStrip"></div>
+    </div>
+  </section>
+
+  <!-- MOVES -->
+  <section class="sec sec--dark" id="moves">
+    <div class="wrap">
+      <p class="kicker">运镜</p>
+      <h2 class="title">镜头会动，<br>八种走法。</h2>
+      <p class="sub">选「跟踪主体」，拉一条轨迹范围，点一下就有 4 秒标准运镜。要更细就自己掌镜：进入机位视角，WASD 走位，一个位置记一帧。</p>
+
+      <div class="stagewrap stagewrap--tall">
+        <canvas data-stage="moves" aria-label="机位视角下推、拉、摇、移的运镜演示"></canvas>
+        <span class="hud hud--tr" id="moveLabel">待机 · 机位 01</span>
+      </div>
+
+      <div class="pills" id="movePills">
+        <button type="button" data-move="push">推镜</button>
+        <button type="button" data-move="pull">拉镜</button>
+        <button type="button" data-move="panL">左摇</button>
+        <button type="button" data-move="panR">右摇</button>
+        <button type="button" data-move="tiltU">俯仰抬</button>
+        <button type="button" data-move="tiltD">俯拍压</button>
+        <button type="button" data-move="truckL">左移</button>
+        <button type="button" data-move="truckR">右移</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHARACTERS -->
+  <section class="sec sec--light" id="chars">
+    <div class="wrap">
+      <p class="kicker">角色</p>
+      <h2 class="title">八种姿势，<br>十二根滑杆。</h2>
+      <p class="sub">标准人形有肩、肘、髋、膝四个关节；简易体型只有一个球头加一根柱身。坐姿、蹲下会自动沉身，脚落在地面。</p>
+
+      <div class="rigwrap">
+        <svg id="rig" class="rig" viewBox="0 108 300 300" role="img" aria-label="角色姿势示意">
+          <defs>
+            <linearGradient id="rigFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f2f2f4"/><stop offset="1" stop-color="#c8c8ce"/>
+            </linearGradient>
+          </defs>
+          <g id="rigRoot" transform="translate(150 261)">
+            <g transform="translate(-5 2)"><g class="joint" data-joint="hipL">
+              <rect x="-7" y="-6" width="14" height="74" rx="7" fill="#b6b6bd"/>
+              <g transform="translate(0 66)"><g class="joint" data-joint="kneeL">
+                <rect x="-6" y="-5" width="12" height="64" rx="6" fill="#b6b6bd"/>
+                <rect x="-8" y="54" width="27" height="9" rx="4.5" fill="#a9a9b1"/>
+              </g></g>
+            </g></g>
+            <g id="rigTorso">
+              <g transform="translate(-8 -80)"><g class="joint" data-joint="shoulderL">
+                <rect x="-5.5" y="-6" width="11" height="60" rx="5.5" fill="#b6b6bd"/>
+                <g transform="translate(0 52)"><g class="joint" data-joint="elbowL">
+                  <rect x="-5" y="-5" width="10" height="52" rx="5" fill="#b6b6bd"/>
+                  <circle cx="0" cy="49" r="5.5" fill="#a9a9b1"/>
+                </g></g>
+              </g></g>
+              <rect x="-22" y="-92" width="44" height="95" rx="13" fill="url(#rigFill)"/>
+              <rect x="-7" y="-103" width="14" height="16" rx="5" fill="#dcdce1"/>
+              <circle cx="2" cy="-117" r="17.5" fill="url(#rigFill)"/>
+              <g transform="translate(5 -80)"><g class="joint" data-joint="shoulderR">
+                <rect x="-5.5" y="-6" width="11" height="60" rx="5.5" fill="#e9e9ee"/>
+                <g transform="translate(0 52)"><g class="joint" data-joint="elbowR">
+                  <rect x="-5" y="-5" width="10" height="52" rx="5" fill="#e9e9ee"/>
+                  <circle cx="0" cy="49" r="5.5" fill="#dcdce1"/>
+                </g></g>
+              </g></g>
+            </g>
+            <g transform="translate(5 2)"><g class="joint" data-joint="hipR">
+              <rect x="-7" y="-6" width="14" height="74" rx="7" fill="#f0f0f4"/>
+              <g transform="translate(0 66)"><g class="joint" data-joint="kneeR">
+                <rect x="-6" y="-5" width="12" height="64" rx="6" fill="#f0f0f4"/>
+                <rect x="-8" y="54" width="27" height="9" rx="4.5" fill="#e2e2e8"/>
+              </g></g>
+            </g></g>
+          </g>
+          <line x1="36" y1="392" x2="264" y2="392" stroke="rgba(0,0,0,.12)" stroke-width="1"/>
+        </svg>
+      </div>
+
+      <div class="pills pills--center" id="posePills">
+        <button type="button" data-pose="stand" class="is-on">站立</button>
+        <button type="button" data-pose="walk">行走</button>
+        <button type="button" data-pose="raise">举手</button>
+        <button type="button" data-pose="hip">叉腰</button>
+        <button type="button" data-pose="sit">坐姿</button>
+        <button type="button" data-pose="crouch">蹲下</button>
+        <button type="button" data-pose="point">指向</button>
+        <button type="button" data-pose="talk">交谈</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPORT -->
+  <section class="sec sec--dark" id="export">
+    <div class="wrap">
+      <p class="kicker">导出</p>
+      <h2 class="title">MP4、分镜表、工程，<br>一个菜单。</h2>
+      <p class="sub">镜头轨渲染成 1920×1080 / 30fps 的 MP4，实时出片；也可以只存当前画面、导一张 HTML 分镜表，或者把整个工程写成 .previz.json 带走。</p>
+
+      <div class="bento">
+        <article class="card card--lead">
+          <div class="card__head"><span class="card__tag">视频</span><b>1920 × 1080 · 30 fps</b></div>
+          <div class="renderline"><i id="renderBar"></i></div>
+          <div class="card__foot"><span id="renderStatus">片长 9.4 秒 · 硬切</span><button class="ghostbtn" type="button" data-render>试一下渲染</button></div>
+        </article>
+        <article class="card">
+          <div class="card__head"><span class="card__tag">分镜表</span><b>HTML</b></div>
+          <p>五张卡、带缩略图，打开就能打印。</p>
+        </article>
+        <article class="card">
+          <div class="card__head"><span class="card__tag">当前画面</span><b>PNG</b></div>
+          <p>把机位视角存成一张静帧。</p>
+        </article>
+        <article class="card">
+          <div class="card__head"><span class="card__tag">工程</span><b>.previz.json</b></div>
+          <p>换台电脑接着摆，模型重新导入即可。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPECS -->
+  <section class="sec sec--light" id="specs">
+    <div class="wrap">
+      <p class="kicker">规格</p>
+      <h2 class="title">该有的都在，<br>限制也写清楚。</h2>
+
+      <div class="cols">
+        <div>
+          <h3>运行要求</h3>
+          <dl class="rows">
+            <div><dt>系统</dt><dd>Windows 10 / 11 64 位</dd></div>
+            <div><dt>显卡</dt><dd>支持 WebGL2</dd></div>
+            <div><dt>分发</dt><dd>便携版，解压整个文件夹</dd></div>
+            <div><dt>数据</dt><dd>%APPDATA%\预演台，自动保存</dd></div>
+            <div><dt>AI</dt><dd>自己的 Key，默认 DeepSeek 接口</dd></div>
+          </dl>
+        </div>
+        <div>
+          <h3>常用快捷键</h3>
+          <dl class="rows">
+            <div><dt>W A S D</dt><dd>导演视角移动</dd></div>
+            <div><dt>Q / E</dt><dd>下降 / 上升</dd></div>
+            <div><dt>F / T / G</dt><dd>机位视角 / 俯视图 / 走位</dd></div>
+            <div><dt>Space</dt><dd>播放全部镜头</dd></div>
+            <div><dt>Ctrl + D</dt><dd>复制选中对象</dd></div>
+            <div><dt>Ctrl + Shift + V</dt><dd>导出视频</dd></div>
+          </dl>
+        </div>
+        <div>
+          <h3>已知限制</h3>
+          <ul class="limits">
+            <li>镜头之间是硬切，没有转场。</li>
+            <li>运镜没有关键帧停留和自定义速度曲线。</li>
+            <li>视频是实时渲染，片长等于等待时长。</li>
+            <li>角色关节刚性，没有手指与脊柱弯曲。</li>
+            <li>AI 布景依赖外部 API 和 Key。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSE -->
+  <footer class="close" id="download">
+    <div class="wrap">
+      <h2 class="close__title">把机位先摆对，<br>再开机。</h2>
+      <p class="close__sub">预演台 v0.21 便携版，Windows 10 / 11 64 位。解压后双击 PrevizStudio.exe，第一次打开点「更多信息 → 仍要运行」。</p>
+      <div class="hero__actions hero__actions--center">
+        <a class="cta" href="assets/download/previz-v0.21.zip" download>下载便携版（138 MB）</a>
+        <a class="link" href="demo.html">在线演示<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8M6.5 2.5L10 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></a>
+      </div>
+
+      <div class="foot">
+        <span>预演台 PREVIZ STUDIO · 2026</span>
+        <span>本页的三维画面都是实时 canvas 绘制，不是软件截图。</span>
+      </div>
+    </div>
+  </footer>
+
+</main>
+
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/landing.js"></script>
+</body>
+</html>
+
